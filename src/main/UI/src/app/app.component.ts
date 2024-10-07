@@ -1,10 +1,12 @@
-import { Component, OnInit } from '@angular/core';
-import {FormControl, FormGroup} from '@angular/forms';
+import { Component, OnInit } from "@angular/core";
+import {FormControl, FormGroup} from "@angular/forms";
 import {HttpClient, HttpResponse,HttpHeaders} from "@angular/common/http";
-import { Observable } from 'rxjs';
+import { Observable } from "rxjs";
 import {map} from "rxjs/operators";
+import {Location,LocationStrategy } from "@angular/common";
 
-
+import {TimeService} from "./time.service";
+import {dateTimestampProvider} from "rxjs/internal/scheduler/dateTimestampProvider";
 
 
 
@@ -15,10 +17,18 @@ import {map} from "rxjs/operators";
 })
 export class AppComponent implements OnInit{
 
-  constructor(private httpClient:HttpClient){}
+  constructor(private httpClient:HttpClient,
+              private messageService: MessageService,
+              private timeService: TimeService){}
 
-  private baseURL:string='http://localhost:8080';
+  constructor(private httpClient:HttpClient,
+              private location: Location,
+              private locationStrategy: LocationStrategy){}
 
+  // private baseURL:string='http://localhost:8080';
+  private baseURL:string=this.location.path();
+  public welcomeString: string = "welcome"
+  public timeString: string = "time"
   private getUrl:string = this.baseURL + '/room/reservation/v1/';
   private postUrl:string = this.baseURL + '/room/reservation/v1';
   public submitted!:boolean;
@@ -29,6 +39,12 @@ export class AppComponent implements OnInit{
   currentCheckOutVal!:string;
 
     ngOnInit(){
+      this.messageService.getMessage().subscribe( (data:any) => {
+        this.welcomeString = data.response;
+      });
+      this.timeService.getTime().subscribe((data:any) => {
+        this.timeString = data.response;
+      });
       this.roomsearch= new FormGroup({
         checkin: new FormControl(' '),
         checkout: new FormControl(' ')
